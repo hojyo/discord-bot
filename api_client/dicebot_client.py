@@ -1,3 +1,4 @@
+import urllib.parse
 import requests
 import json
 import re
@@ -21,9 +22,9 @@ def request_creater(message):
     system = 'Cthulhu'
 
     url = '/v1/diceroll'
-    para = '?system=' + system + '&command=' + message.replace(' ', '')
+    para = '?system=' + system + '&command=' + urllib.parse.quote(message.replace(' ', ''))
 
-    fqdn = 'http://' + host + ':' + port + url + para
+    fqdn = 'http://' + host + ':' + port + url + para + ''
     print('To request ⇛' + fqdn)
     return fqdn
 
@@ -35,7 +36,7 @@ def dice_api_client(message):
     try:
         data = response.json()
     except:
-        data = False 
+        data = False
         return data
     print(data)
 
