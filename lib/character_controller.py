@@ -21,11 +21,13 @@ def list_in_chara(chara, lolist):
         if chara == i:
             return i
 
+# 負の遺産
 def chara_loader(unique_id):
-    return fc.file_reader(unique_id)
+    return character.file_reader(unique_id)
 
-def chara_saver(character_json, unique_id):
-    return fc.file_writer(character_json, unique_id)
+# 残してるけど直でもいいかも
+def chara_saver(unique_id, status, val):
+    return character.file_writer(unique_id, status, bal)
 
 # キャラクターのステータスデータ読み込み、およびキャラ名のリスト作成
 def chara_lister():
@@ -35,7 +37,7 @@ def chara_lister():
     pc_name_list = []
     for file_name in file_list:
         unique_id = file_name.split('.')[0].split('/')[2]
-        character_list[unique_id] = fc.file_reader(unique_id)
+        character_list[unique_id] = character.get_skill_name(unique_id)
         pc_name_list.append(unique_id)
     print(pc_name_list)
 

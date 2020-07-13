@@ -1,4 +1,6 @@
-from lib import file_controller as fc
+import redis
+import json
+import redis_client as r
 
 class Character():
     # クラス変数
@@ -15,7 +17,9 @@ class Character():
         'TKAP' : ['医学', 'オカルト', '化学', 'クトゥルフ神話', '芸術', '経理', '考古学', 'コンピューター', '心理学', '人類学', '生物学', '地質学', '電子工学', '天文学', '博物学', '物理学', '法律', '薬学', '歴史']
     }
 
-
+    # redisに接続
+    conn = r.redis_connect()
+ 
     # 将来的な拡張（初期値と成長/増減分個別管理など）を考慮してセッター/ゲッターにした
 
     # キャラ名を返す
@@ -36,40 +40,40 @@ class Character():
     # 何も返さない
     def set_status_value(self, item, value):
         print('TODO: [Character::set_status_value()] 未定義の技能が指定された場合のエラーハンドリングをする')
-        self.status[item] = value
+        conn.hset(self, 'status', {self.status[item]:value})
 
         # 技能値を更新する必要があるケース = POW, INT, EDU, SAN
         if item == 'POW':
-            self.skill['幸運']['value'] = str(int(self.status['POW']) * 5)
+            conn.hset(self, 'skill', {self.skill['幸運']['value']:str(int(self.status['POW']) * 5)})
         elif item == 'INT':
-            self.skill['アイデア']['value']= str(int(self.status['INT']) * 5)
+            conn.hset(self, 'skill', {self.skill['アイデア']['value']:str(int(self.status['INT']) * 5)})
         elif item == 'EDU':
-            self.skill['知識']['value'] = str(int(self.status['EDU']) * 5)
+            conn.hset(self, 'skill', {self.skill['知識']['value']:str(int(self.status['EDU']) * 5)})
         elif item == 'SAN':
-            self.skill['SAN']['value'] = str(int(self.status['SAN']))
-
-        self.save_character()
-
+            conn.hset(self, 'skill', {self.skill['SAN']['value']:str(int(self.status['SAN']))})
 
     # キャラの技能値を返す
     def get_skill_value(self, skillname):
         return self.skill[skillname]['value']
 
-
     # キャラの技能値を設定
     def set_skill_value(self, skillname, value):
-        self.skill[skillname]['value'] = value
-        save_character()
+        conn.hset(self, 'skill', {self.skill[skillname]['value']:value})
+        return
 
     # キャラの技能名（表示名）を返す
     def get_skill_name(self, skillname):
         return self.skill[skillname]['name']
 
-    # ファイルにキャラクターを書き込む
-    # 何も返さない
+    # キャラクターデータの更新
+    # ここは都度保存するようにしたいので、保存の方法を考える必要がある
     def save_character(self):
-        fc.file_writer(self)
-        return
+        # ステータス保存
+        conn.hmset(self, 'status', self.stutus)
+        conn.hmset(self, 'skill', self.skill)
+        conn.hmset(self, 'name', self.name)
+        conn.hmset(self, 'unique_id', self.unique_id)
+        return 
 
     # コンストラクタ
     # hokanjo: 保管所形式のjsonデータ
